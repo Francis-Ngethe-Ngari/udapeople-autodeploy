@@ -3,6 +3,33 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.12.1
 commands:
+  install_nodejs:
+   description: Install Node.js 13
+   steps:
+     - run:
+         name: Install Node.js 13
+         command: |
+           curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+           sudo apt install -y nodejs
+  install_awscli:
+    description: Install AWS CLI v2
+    steps :
+      - run:
+         name: Install AWS CLI v2
+         command: |
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install
+  install_ansible:
+    description: Install Ansible V2
+    steps :
+      - run:
+          name: Install Ansible v2
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible
   notify_on_crash:
     description: Notify slack channel with custorm message
     steps:
@@ -216,17 +243,18 @@ jobs:
       
   configure-infrastructure:
     docker:
-      - image: python:3.10-alpine3.16
+      - image: cimg/base:stable
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["9a:4e:7e:27:a9:ea:af:8c:da:b9:ed:79:8e:c3:5a:28"]
       - attach_workspace:
           at: ~/
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli curl ansible
+
+      # Install dependencies
+      - install_ansible
+      - install_awscli
+      
       - run:
           name: Configure server
           command: |
@@ -308,7 +336,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: cimg/base:stable
     steps:
       - checkout
       # Add ssh keys with fingerprint
@@ -317,10 +345,12 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli nodejs npm ansible curl tar gzip
+
+      # Install ansible, awscli, and nodejs dependencies
+      - install_ansible
+      - install_awscli
+      - install_nodejs
+
       - run:
           name: install npm dependencies 
           command: |
