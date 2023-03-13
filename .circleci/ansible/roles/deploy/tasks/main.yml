@@ -26,22 +26,22 @@
 
 - name: "create backend_app_dir"
   file: 
-    path: ~/backend_app_dir
+    path: /home/ubuntu/backend_app_dir
     state: directory
 
 - name: 'Unarchive backend files'
   unarchive:
     src: artifact.tar.gz
-    dest: ~/backend_app_dir
+    dest: /home/ubuntu/backend_app_dir
 
 - name: 'Installing Node Dependencies'
   shell: |
-    cd ~/backend_app_dir
+    cd /home/ubuntu/backend_app_dir
     sudo npm install
     
 - name: 'Executing Node app with PM2'
   shell: |
-    cd ~/backend_app_dir/dist
+    cd /home/ubuntu/backend_app_dir/dist
     sudo pm2 stop default
     sudo pm2 start main.js
   register: execute_node
