@@ -392,14 +392,14 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image
-      - image: python:3.10-alpine3.16
+      - image: amazon/aws-cli:latest
     steps:
       # Checkout code from git
       - checkout
       - run:
-          name: install dependencies 
+          name: install tar and gzip
           command: |
-            apk add --update --no-cache aws-cli nodejs npm curl
+            yum -y install tar gzip nodejs npm curl
       - run:
           name: Get backend url and run Backend smoke test
           command: |
