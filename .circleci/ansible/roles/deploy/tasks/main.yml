@@ -35,13 +35,11 @@
     dest: ~/backend_app_dir
 
 - name: 'Installing Node Dependencies'
-  become: true
   shell: |
     cd ~/backend_app_dir
     sudo npm i
     
 - name: 'Executing Node app with PM2'
-  become: true
   shell: |
     cd ~/backend_app_dir/dist
     sudo pm2 stop default
@@ -52,7 +50,6 @@
   debug:
     msg: '{{ execute_node.stdout_lines }}'
 - name: 'Configure pm2 to start as service'
-  become: true
   shell: |
     sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
     pm2 save
