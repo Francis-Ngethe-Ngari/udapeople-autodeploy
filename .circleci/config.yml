@@ -480,7 +480,7 @@ jobs:
       - notify_on_crash
       - destroy-environment
       - revert-migrations
-      
+ # Remove old stacks     
   cleanup:
   
     docker:
@@ -511,7 +511,7 @@ jobs:
       - notify_on_success
       - notify_on_crash
             
-# # Workflows-how jobs will execute
+# Workflows-how jobs will execute
 workflows:
   my_workflows:
     jobs:
