@@ -17,25 +17,33 @@ commands:
             # Use n version manager to use Node.js v13.8.0
             sudo npm install --global n
             sudo n 13.8.0
+            
+  install_dependencies:
+    steps :
+      - run:
+          name: Install tar gzip curl
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y tar gzip curl
 
-  # install_awscli:
-  #   steps :
-  #     - run:
-  #         name: Install AWS CLI v2
-  #         command: |
-  #           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  #           unzip awscliv2.zip
-  #           sudo ./aws/install
-  # install_ansible:
-  #   description: Install Ansible V2
-  #   steps :
-  #     - run:
-  #         name: Install Ansible v2
-  #         command: |
-  #           sudo apt update
-  #           sudo apt install software-properties-common
-  #           sudo add-apt-repository --yes --update ppa:ansible/ansible
-  #           sudo apt install ansible
+  install_awscli:
+    steps :
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+  install_ansible:
+    description: Install Ansible
+    steps :
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible
   
   
   notify_on_crash:
@@ -283,17 +291,15 @@ jobs:
 
   run-migrations:
     docker:
-      - image: python:3.10-alpine3.16
+      - image: cimg/python:3.10
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
 
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli curl
+      - install_awscli
       - install_nodejs
+      - install_dependencies
 
       - run:
           name: Run migrations
@@ -320,17 +326,15 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.10-alpine3.16
+      - image: cimg/python:3.10
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
 
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli curl tar gzip openssh
       - install_nodejs
+      - install_awscli
+      - install_dependencies
 
       - run:
           name: Get backend url
@@ -356,7 +360,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.10-alpine3.16
+      - image: cimg/python:3.10
     steps:
       - checkout
       # Add ssh keys with fingerprint
@@ -368,11 +372,10 @@ jobs:
       - restore_cache:
           keys: [ backend-build ]
 
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli curl tar gzip ansible openssh
       - install_nodejs
+      - install_awscli
+      - install_dependencies
+      - install_ansible
 
       - run:
           name: install npm dependencies 
@@ -413,8 +416,7 @@ jobs:
       - run:
           name: install dependencies 
           command: |
-            apk add --update --no-cache aws-cli curl
-      - install_nodejs
+            apk add --update --no-cache aws-cli curl nodejs npm
       - run:
           name: Get backend url and run Backend smoke test
           command: |
@@ -444,8 +446,8 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - notify_on_success
       - notify_on_crash
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
       
   cloudfront-update:
     docker:
@@ -457,8 +459,7 @@ jobs:
       - run:
           name: install dependencies 
           command: |
-            apk add --update --no-cache aws-cli curl
-      - install_nodejs
+            apk add --update --no-cache aws-cli curl nodejs npm
 
       - run:
           name: Save Old Workflow ID to kvdb.io
