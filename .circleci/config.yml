@@ -97,7 +97,7 @@ commands:
               npm run build
               npm run migration:revert
             fi
-            
+# jobs to run            
 jobs:
   build-frontend:
     docker:
