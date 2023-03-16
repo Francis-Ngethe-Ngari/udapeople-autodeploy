@@ -404,7 +404,8 @@ jobs:
       - notify_on_crash
       - destroy-environment
       - revert-migrations
-
+      
+# intentional failure provided
   smoke-test:
     docker:
       # Lightweight Docker image
