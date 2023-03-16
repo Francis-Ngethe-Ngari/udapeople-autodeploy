@@ -330,7 +330,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-
+          
+      # install necessary dependencies
       - install_nodejs
       - install_awscli
       - install_dependencies
