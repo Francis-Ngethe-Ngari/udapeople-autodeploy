@@ -190,8 +190,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit --audit-level=critical
-            # npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-scan
@@ -439,7 +438,7 @@ jobs:
               if curl -s "${Frontend_URL}" | grep "Welcome"
               then
                   # Change this to 0 after the job fails
-                exit 0
+                exit 1
               else
                 exit 1
               fi
