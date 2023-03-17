@@ -290,16 +290,15 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/python:3.10
+      - image: amazon/aws-cli:latest
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-
-      - install_awscli
-      - install_nodejs
-      - install_dependencies
-
+      - run:
+          name: install tar and gzip
+          command: |
+            yum -y install tar gzip curl nodejs npm
       - run:
           name: Run migrations
           command: |
@@ -440,7 +439,7 @@ jobs:
               if curl -s "${Frontend_URL}" | grep "Welcome"
               then
                   # Change this to 0 after the job fails
-                exit 0
+                exit 1
               else
                 exit 1
               fi

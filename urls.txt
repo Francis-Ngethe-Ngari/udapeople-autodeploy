@@ -1,5 +1,8 @@
 [URL01]
 https://github.com/Francis-Ngethe-Ngari/udapeople-autodeploy
 
-[URL02]
-http://d2mf2bain722vi.cloudfront.net/#/employees
+[URL02-CloudFront]
+http://dzl369ng9a1pv.cloudfront.net
+
+[URL02-S3-Bucket-Website]
+http://udapeople-838d7cd.s3-website-us-east-1.amazonaws.com/
