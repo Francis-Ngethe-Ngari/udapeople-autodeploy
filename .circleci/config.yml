@@ -287,16 +287,16 @@ jobs:
       - destroy-environment
 
   run-migrations:
-    macos:
-      xcode: 14.0.0
+    docker:
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
-      # - restore_cache:
-      #     keys: [backend-build]
+      - restore_cache:
+          keys: [backend-build]
       - run:
-          name: install nodejs
+          name: install dependencies 
           command: |
-            brew install node@14
+            apk add --update --no-cache aws-cli curl nodejs npm
       - run:
           name: Run migrations
           command: |
