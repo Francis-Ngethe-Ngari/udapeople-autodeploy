@@ -278,24 +278,26 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
 
-      - run:
-          name: run node-exporter
-          command: |
-            cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-node-exporter.yml
+      # - run:
+      #     name: run node-exporter
+      #     command: |
+      #       cd .circleci/ansible
+      #       ansible-playbook -i inventory.txt configure-node-exporter.yml
       - notify_on_success
       - notify_on_crash
       - destroy-environment
 
   run-migrations:
-    docker:
-      - image:  cimg/base:2023.03-20.04
+    macos:
+      xcode: 14.0.0
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - install_awscli
-      - install_nodejs
+      - run:
+          name: install nodejs
+          command: |
+            brew install node@14
       - run:
           name: Run migrations
           command: |
