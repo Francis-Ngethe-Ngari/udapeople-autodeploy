@@ -93,7 +93,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run premigrations:revert
+              npm run migrations:revert
             fi
 # jobs to run            
 jobs:
@@ -304,7 +304,7 @@ jobs:
             npm install
             # npm audit fix --audit-level=critical --force
             # Run and save the migration output
-            npm run premigrations > migrations_dump.txt
+            npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
             
       - run:
@@ -446,8 +446,8 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - notify_on_success
       - notify_on_crash
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
       
   cloudfront-update:
     docker:
