@@ -3,19 +3,6 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.12.1
 commands:
-  install_nodejs_awscli:
-    description: Install Node.js 13
-    steps:
-      - run:
-          name: Install Node.js 13
-          command: |
-            # Install Node.js LTS version as our base Node.js version
-            curl --silent --location https://rpm.nodesource.com/setup_13.x | bash -
-            yum install -y nodejs
-            # # Use n version manager to use Node.js v13.8.0
-            # npm install --global n
-            # n 13.8.0
-
   install_nodejs:
     description: Install Node.js 13.8.0
     steps:
@@ -302,16 +289,13 @@ jobs:
 
   run-migrations:
     docker:
-      - image: amazon/aws-cli:latest
+      - image:  cimg/base:2023.03-20.04
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: install tar and gzip
-          command: |
-            yum -y install tar gzip curl
-      - install_nodejs_awscli
+      - install_awscli
+      - install_nodejs
       - run:
           name: Run migrations
           command: |
