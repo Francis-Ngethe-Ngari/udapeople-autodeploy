@@ -94,7 +94,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run migrations:revert
+              npm run migration:revert
             fi
 # jobs to run            
 jobs:
@@ -354,8 +354,8 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - notify_on_success
       - notify_on_crash
-      - revert-migrations
       - destroy-environment
+      - revert-migrations
 
   deploy-backend:
     docker:
@@ -402,9 +402,10 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
       - notify_on_success
-      - notify_on_crash   
+      - notify_on_crash
+      - destroy-environment   
       - revert-migrations
-      - destroy-environment
+      
       
 # intentional failure provided
   smoke-test:
@@ -447,9 +448,8 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - notify_on_success
       - notify_on_crash
-      - revert-migrations
       - destroy-environment
-
+      - revert-migrations
       
   cloudfront-update:
     docker:
@@ -484,8 +484,9 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - notify_on_success
       - notify_on_crash
-      - revert-migrations
       - destroy-environment
+      - revert-migrations
+     
  # Remove old stacks     
   cleanup:
   
