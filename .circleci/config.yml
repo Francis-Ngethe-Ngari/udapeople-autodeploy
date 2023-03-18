@@ -299,7 +299,7 @@ jobs:
           name: Run migrations
           command: |
             # Your code here
-            cd  cd ~/project/backend
+            cd ~/project/backend
             npm install
             # npm audit fix --audit-level=critical --force
             # Run and save the migration output
