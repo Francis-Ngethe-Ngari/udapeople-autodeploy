@@ -515,7 +515,7 @@ jobs:
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
 
-            if [[ "${WorkflowID}" =~ "${STACKS[@]}" ]]
+            if [[ "${STACKS[@]}" =~ "${WorkflowID}" ]]
             then
                 echo "-----------------Delete Confirmed--------------------------"
                 aws s3 rm s3://${OldInitialWorkflowID} --force
