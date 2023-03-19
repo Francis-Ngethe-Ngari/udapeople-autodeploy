@@ -10,7 +10,7 @@ commands:
           name: Install Node.js 13.8.0
           command: |
             # Install Node.js LTS version as our base Node.js version
-            curl -fsSL 'https://deb.nodesource.com/setup_lts.x' | sudo -E bash -
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
             sudo apt install -y nodejs
             # Use n version manager to use Node.js v13.8.0
             sudo npm install --global n
@@ -29,7 +29,7 @@ commands:
       - run:
           name: Install AWS CLI v2
           command: |
-            curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o "awscliv2.zip"
+            curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
   install_ansible:
@@ -350,8 +350,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            tar -czvf artifact-${CIRCLE_WORKFLOW_ID:0:7}.tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - notify_on_success
       - notify_on_crash
       - destroy-environment
@@ -471,7 +471,7 @@ jobs:
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
             echo Old Initial Workflow ID: ${OldInitialWorkflowID}
-            curl https://kvdb.io/${KVDB_BUCKET}/old_workflow_id -d "${OldInitialWorkflowID}"
+            curl https://kvdb.io/${BUCKET_ID}/old_workflow_id -d "${OldInitialWorkflowID}"
             
       - run:
           name: Update cloudfront distribution
@@ -506,7 +506,7 @@ jobs:
           command: |
           
             # Fetch the Old workflow ID
-            export OldInitialWorkflowID=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/old_workflow_id)
+            export OldInitialWorkflowID=$(curl --insecure https://kvdb.io/${BUCKET_ID}/old_workflow_id)
             echo Old Workflow ID: "${OldInitialWorkflowID}"
             export WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
             echo WORKFLOW_ID: ${WorkflowID}
