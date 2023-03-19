@@ -305,8 +305,8 @@ jobs:
             npm install
             # npm audit fix --audit-level=critical --force
             # Run and save the migration output
-            npm run migrations > ~/project/backend/migrations_dump.txt
-            cat ~/project/backend/migrations_dump.txt
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
             
       - run:
           name: Send migration results to kvdb.io
@@ -411,14 +411,15 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image
-      - image: python:3.10-alpine3.16
+      - image: cimg/python:3.10
     steps:
       # Checkout code from git
       - checkout
-      - run:
-          name: install dependencies 
-          command: |
-            apk add --update --no-cache aws-cli curl nodejs npm
+
+      # Install dependencies
+      - install_nodejs
+      - install_awscli
+      - install_dependencies
       - run:
           name: Get backend url and run Backend smoke test
           command: |
