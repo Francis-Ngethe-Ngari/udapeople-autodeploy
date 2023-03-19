@@ -515,10 +515,11 @@ jobs:
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
 
-            if [[ "${STACKS[@]}" =~ "${WorkflowID}" ]]
+            if [[ "${WorkflowID}" =~ "${STACKS[@]}" ]]
             then
                 echo "-----------------Delete Confirmed--------------------------"
-                aws s3 rm s3://${OldInitialWorkflowID} --recursive
+                aws s3 rm s3://${OldInitialWorkflowID} --force
+                aws s3 rm s3://udapeople-${WorkflowID} --recursive
                 aws cloudformation delete-stack --stack-name udapeople-backend-${WorkflowID}
                 aws cloudformation delete-stack --stack-name udapeople-frontend-${WorkflowID}
             else
