@@ -232,7 +232,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name 'udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}' \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID='${CIRCLE_WORKFLOW_ID:0:7}'
       - run:
           name: Ensure front-end infrastructure exists
@@ -240,7 +240,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name 'udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}' \
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID='${CIRCLE_WORKFLOW_ID:0:7}'
       - run:
           name: Add backend ip inventory.txt
@@ -479,7 +479,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides 'WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}'
+              --parameter-overrides WorkflowID='${CIRCLE_WORKFLOW_ID:0:7}'
             echo Current Workflow ID: '${CIRCLE_WORKFLOW_ID:0:7}'
             
       # Here's where you will add some code to rollback on failure
