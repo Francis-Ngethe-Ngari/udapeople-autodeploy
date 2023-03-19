@@ -71,9 +71,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name 'udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}'
-            aws s3 rm s3://'udapeople-${CIRCLE_WORKFLOW_ID:0:7}' --recursive
-            aws cloudformation delete-stack --stack-name 'udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}'
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -87,8 +87,8 @@ commands:
           when: on_fail
           command: |
 
-            SUCCESS=$(curl --insecure "https://kvdb.io/${BUCKET_ID}/migration_${CIRCLE_WORKFLOW_ID:0:7}")
-            if ( "$SUCCESS" == 1 ):
+            SUCCESS=$(curl --insecure https://kvdb.io/${BUCKET_ID}/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if [[ $SUCCESS == 1 ]]
             then
               cd ~/project/backend
               npm install
@@ -232,21 +232,21 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Ensure front-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Add backend ip inventory.txt
           command: |
-            BACKEND_PUBLIC_IP=$(aws --region us-east-1 ec2 describe-instances --filters 'Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}' --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-            echo '$BACKEND_PUBLIC_IP' >> .circleci/ansible/inventory.txt
+            BACKEND_PUBLIC_IP=$(aws --region us-east-1 ec2 describe-instances --filters Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -311,9 +311,9 @@ jobs:
       - run:
           name: Send migration results to kvdb.io
           command: |
-            if (grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt):
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl ("https://kvdb.io/${BUCKET_ID}/migration_${CIRCLE_WORKFLOW_ID:0:7}" -d '1')
+              curl https://kvdb.io/${BUCKET_ID}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"
             else
               echo "No migrations pending"
             fi
@@ -340,7 +340,7 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_PUBLIC_IP=$(aws --region us-east-1 ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-            export API_URL='http://${BACKEND_PUBLIC_IP}:3030'
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_PUBLIC_IP}:3030" >>frontend/.env
             cat frontend/.env
@@ -351,7 +351,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://'udapeople-${CIRCLE_WORKFLOW_ID:0:7}' --recursive
+            aws s3 cp dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - notify_on_success
       - notify_on_crash
       - destroy-environment
@@ -470,8 +470,8 @@ jobs:
             export OldInitialWorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
-            echo Old Initial Workflow ID: '${OldInitialWorkflowID}'
-            curl 'https://kvdb.io/${KVDB_BUCKET}/old_workflow_id' -d "${OldInitialWorkflowID}"
+            echo Old Initial Workflow ID: ${OldInitialWorkflowID}
+            curl https://kvdb.io/${KVDB_BUCKET}/old_workflow_id -d "${OldInitialWorkflowID}"
             
       - run:
           name: Update cloudfront distribution
@@ -479,8 +479,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides WorkflowID='${CIRCLE_WORKFLOW_ID:0:7}'
-            echo Current Workflow ID: '${CIRCLE_WORKFLOW_ID:0:7}'
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+            echo Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}
             
       # Here's where you will add some code to rollback on failure
       - notify_on_success
@@ -508,19 +508,19 @@ jobs:
             # Fetch the Old workflow ID
             export OldInitialWorkflowID=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/old_workflow_id)
             echo Old Workflow ID: "${OldInitialWorkflowID}"
-            export WorkflowID='${CIRCLE_WORKFLOW_ID:0:7}'
-            echo WORKFLOW_ID: '${WorkflowID}'
+            export WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+            echo WORKFLOW_ID: ${WorkflowID}
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
 
-            if ( '${WorkflowID}' =~ '${OldInitialWorkflowID}' ):
+            if [[ ${WorkflowID} =~ ${OldInitialWorkflowID} ]]
             then
                 echo "-----------------Delete Confirmed--------------------------"
-                aws s3 rm s3://'${OldInitialWorkflowID}' --recursive
-                aws cloudformation delete-stack --stack-name 'udapeople-backend-${WorkflowID}'
-                aws cloudformation delete-stack --stack-name 'udapeople-frontend-${WorkflowID}'
+                aws s3 rm s3://${OldInitialWorkflowID} --recursive
+                aws cloudformation delete-stack --stack-name udapeople-backend-${WorkflowID}
+                aws cloudformation delete-stack --stack-name udapeople-frontend-${WorkflowID}
             else
                 echo "-----------------Nothing to Cleanup-----------------------------"
             fi
